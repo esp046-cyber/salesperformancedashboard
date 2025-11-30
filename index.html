@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
+    <title>Intra Juice Sales Dashboard</title>
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIkludHJhIEp1aWNlIFNhbGVzIERhc2hib2FyZCIsCiAgInNob3J0X25hbWUiOiAiSW50cmEgSnVpY2UiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI2ZmZmZmZiIsCiAgInRoZW1lX2NvbG9yIjogIiNGRjZCMzUiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWwsJTNDc3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDUxMiA1MTInJTNFJTNDcmVjdCBmaWxsPSclMjNGRjZCMzUnIHdpZHRoPSc1MTInIGhlaWdodD0nNTEyJy8lM0UlM0N0ZXh0IHg9JzUwJTI1JyB5PSc1MCUyNScgZm9udC1zaXplPScyODAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGR5PScuMzVlbScgZmlsbD0nd2hpdGUnIGZvbnQtZmFtaWx5PSdBcmlhbCclM0VKJTNDL3RleHQlM0UlM0Mvc3ZnJTNFIiwKICAgICAgInNpemVzIjogIjUxMng1MTIiLAogICAgICAidHlwZSI6ICJpbWFnZS9zdmcreG1sIgogICAgfQogIF0KfQ==">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            color: #FF6B35;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        select, button {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        select:hover, button:hover {
+            border-color: #FF6B35;
+        }
+
+        button {
+            background: #FF6B35;
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #e55a25;
+            transform: translateY(-2px);
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #FF6B35;
+        }
+
+        .metric-change {
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .positive {
+            color: #4CAF50;
+        }
+
+        .negative {
+            color: #f44336;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+
+        .table-container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #666;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            display: none;
+            align-items: center;
+            gap: 15px;
+            z-index: 1000;
+        }
+
+        .install-prompt button {
+            background: white;
+            color: #4CAF50;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            .table-container {
+                padding: 15px;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            th, td {
+                padding: 8px 4px;
+                white-space: nowrap;
+            }
+            
+            .metric-card {
+                padding: 15px;
+            }
+            
+            .metric-value {
+                font-size: 24px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            table {
+                font-size: 10px;
+            }
+            
+            th, td {
+                padding: 6px 2px;
+            }
+            
+            .filters {
+                width: 100%;
+            }
+            
+            select, button {
+                flex: 1;
+                min-width: 0;
+                font-size: 12px;
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🥤 Intra Juice Sales Dashboard</h1>
+            <div class="filters">
+                <select id="regionFilter">
+                    <option value="all">All Regions</option>
+                    <option value="North">North</option>
+                    <option value="South">South</option>
+                    <option value="East">East</option>
+                    <option value="West">West</option>
+                </select>
+                <select id="repFilter">
+                    <option value="all">All Reps</option>
+                </select>
+                <select id="productFilter">
+                    <option value="all">All Products</option>
+                    <option value="Orange Blast">Orange Blast</option>
+                    <option value="Mango Delight">Mango Delight</option>
+                    <option value="Berry Mix">Berry Mix</option>
+                    <option value="Tropical Fusion">Tropical Fusion</option>
+                    <option value="Apple Fresh">Apple Fresh</option>
+                </select>
+                <button onclick="refreshData()">🔄 Refresh</button>
+            </div>
+        </header>
+
+        <div class="metrics">
+            <div class="metric-card">
+                <div class="metric-label">Total Sales</div>
+                <div class="metric-value" id="totalSales">$0</div>
+                <div class="metric-change positive" id="salesChange">↑ 0%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Units Sold</div>
+                <div class="metric-value" id="unitsSold">0</div>
+                <div class="metric-change positive" id="unitsChange">↑ 0%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Avg Order Value</div>
+                <div class="metric-value" id="avgOrder">$0</div>
+                <div class="metric-change negative" id="avgChange">↓ 0%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Forecasted (Next Month)</div>
+                <div class="metric-value" id="forecast">$0</div>
+                <div class="metric-change positive" id="forecastChange">↑ 0%</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Sales by Region</div>
+                <canvas id="regionChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Top Products</div>
+                <canvas id="productChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Sales Trend & Forecast</div>
+                <canvas id="trendChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Top Sales Reps</div>
+                <canvas id="repChart"></canvas>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div class="chart-title">Detailed Sales Data</div>
+            <table id="salesTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Region</th>
+                        <th>Sales Rep</th>
+                        <th>Product</th>
+                        <th>Units</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="install-prompt" id="installPrompt">
+        <span>Install Intra Juice Dashboard as an app?</span>
+        <button onclick="installApp()">Install</button>
+        <button onclick="dismissInstall()" style="background: transparent; color: white;">Later</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        // PWA Installation
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').style.display = 'flex';
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    deferredPrompt = null;
+                    document.getElementById('installPrompt').style.display = 'none';
+                });
+            }
+        }
+
+        function dismissInstall() {
+            document.getElementById('installPrompt').style.display = 'none';
+        }
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            const sw = `
+                const CACHE_NAME = 'intra-juice-v1';
+                self.addEventListener('install', (e) => {
+                    e.waitUntil(caches.open(CACHE_NAME));
+                });
+                self.addEventListener('fetch', (e) => {
+                    e.respondWith(
+                        caches.match(e.request).then(response => response || fetch(e.request))
+                    );
+                });
+            `;
+            const blob = new Blob([sw], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            navigator.serviceWorker.register(swUrl);
+        }
+
+        // Sample Data Generation
+        const regions = ['North', 'South', 'East', 'West'];
+        const products = ['Orange Blast', 'Mango Delight', 'Berry Mix', 'Tropical Fusion', 'Apple Fresh'];
+        const salesReps = [
+            'John Smith', 'Sarah Johnson', 'Mike Williams', 'Emily Brown', 'David Jones',
+            'Lisa Garcia', 'Tom Martinez', 'Anna Rodriguez', 'Chris Lee', 'Maria Gonzalez'
+        ];
+
+        let salesData = [];
+
+        function generateSalesData() {
+            salesData = [];
+            const startDate = new Date('2024-01-01');
+            
+            for (let i = 0; i < 200; i++) {
+                const date = new Date(startDate);
+                date.setDate(date.getDate() + Math.floor(Math.random() * 365));
+                
+                salesData.push({
+                    date: date.toISOString().split('T')[0],
+                    region: regions[Math.floor(Math.random() * regions.length)],
+                    rep: salesReps[Math.floor(Math.random() * salesReps.length)],
+                    product: products[Math.floor(Math.random() * products.length)],
+                    units: Math.floor(Math.random() * 100) + 10,
+                    revenue: (Math.random() * 5000 + 500).toFixed(2)
+                });
+            }
+            
+            salesData.sort((a, b) => new Date(b.date) - new Date(a.date));
+        }
+
+        // Populate Rep Filter
+        function populateRepFilter() {
+            const repFilter = document.getElementById('repFilter');
+            salesReps.forEach(rep => {
+                const option = document.createElement('option');
+                option.value = rep;
+                option.textContent = rep;
+                repFilter.appendChild(option);
+            });
+        }
+
+        // Filter Data
+        function getFilteredData() {
+            const region = document.getElementById('regionFilter').value;
+            const rep = document.getElementById('repFilter').value;
+            const product = document.getElementById('productFilter').value;
+
+            return salesData.filter(item => {
+                return (region === 'all' || item.region === region) &&
+                       (rep === 'all' || item.rep === rep) &&
+                       (product === 'all' || item.product === product);
+            });
+        }
+
+        // Update Metrics
+        function updateMetrics() {
+            const data = getFilteredData();
+            const totalSales = data.reduce((sum, item) => sum + parseFloat(item.revenue), 0);
+            const totalUnits = data.reduce((sum, item) => sum + item.units, 0);
+            const avgOrder = totalUnits > 0 ? totalSales / data.length : 0;
+            
+            // Simple forecast (15% increase)
+            const forecast = totalSales * 1.15;
+
+            document.getElementById('totalSales').textContent = '$' + totalSales.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('unitsSold').textContent = totalUnits.toLocaleString();
+            document.getElementById('avgOrder').textContent = '$' + avgOrder.toLocaleString(undefined, {maximumFractionDigits: 0});
+            document.getElementById('forecast').textContent = '$' + forecast.toLocaleString(undefined, {maximumFractionDigits: 0});
+
+            document.getElementById('salesChange').textContent = '↑ 12.5% vs last month';
+            document.getElementById('unitsChange').textContent = '↑ 8.3% vs last month';
+            document.getElementById('avgChange').textContent = '↓ 2.1% vs last month';
+            document.getElementById('forecastChange').textContent = '↑ 15% projected growth';
+        }
+
+        // Charts
+        let regionChart, productChart, trendChart, repChart;
+
+        function updateCharts() {
+            const data = getFilteredData();
+
+            // Region Chart
+            const regionSales = {};
+            data.forEach(item => {
+                regionSales[item.region] = (regionSales[item.region] || 0) + parseFloat(item.revenue);
+            });
+
+            if (regionChart) regionChart.destroy();
+            regionChart = new Chart(document.getElementById('regionChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(regionSales),
+                    datasets: [{
+                        data: Object.values(regionSales),
+                        backgroundColor: ['#FF6B35', '#F7931E', '#FDC830', '#4ECDC4']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Product Chart
+            const productSales = {};
+            data.forEach(item => {
+                productSales[item.product] = (productSales[item.product] || 0) + parseFloat(item.revenue);
+            });
+
+            if (productChart) productChart.destroy();
+            productChart = new Chart(document.getElementById('productChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(productSales),
+                    datasets: [{
+                        label: 'Revenue',
+                        data: Object.values(productSales),
+                        backgroundColor: '#FF6B35'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // Trend Chart with Forecast
+            const monthlyData = {};
+            data.forEach(item => {
+                const month = item.date.substring(0, 7);
+                monthlyData[month] = (monthlyData[month] || 0) + parseFloat(item.revenue);
+            });
+
+            const sortedMonths = Object.keys(monthlyData).sort();
+            const lastMonth = sortedMonths[sortedMonths.length - 1];
+            const avgGrowth = 1.08; // 8% average growth
+            
+            // Generate 3 months forecast
+            const forecastMonths = [];
+            const forecastValues = [];
+            let lastValue = monthlyData[lastMonth];
+            
+            for (let i = 1; i <= 3; i++) {
+                const date = new Date(lastMonth + '-01');
+                date.setMonth(date.getMonth() + i);
+                const forecastMonth = date.toISOString().substring(0, 7);
+                forecastMonths.push(forecastMonth);
+                lastValue *= avgGrowth;
+                forecastValues.push(lastValue);
+            }
+
+            if (trendChart) trendChart.destroy();
+            trendChart = new Chart(document.getElementById('trendChart'), {
+                type: 'line',
+                data: {
+                    labels: [...sortedMonths, ...forecastMonths],
+                    datasets: [{
+                        label: 'Actual Sales',
+                        data: [...sortedMonths.map(m => monthlyData[m]), ...Array(3).fill(null)],
+                        borderColor: '#FF6B35',
+                        backgroundColor: 'rgba(255, 107, 53, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Forecast',
+                        data: [...Array(sortedMonths.length).fill(null), monthlyData[lastMonth], ...forecastValues],
+                        borderColor: '#4ECDC4',
+                        backgroundColor: 'rgba(78, 205, 196, 0.1)',
+                        borderDash: [5, 5],
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Rep Chart
+            const repSales = {};
+            data.forEach(item => {
+                repSales[item.rep] = (repSales[item.rep] || 0) + parseFloat(item.revenue);
+            });
+
+            const topReps = Object.entries(repSales)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            if (repChart) repChart.destroy();
+            repChart = new Chart(document.getElementById('repChart'), {
+                type: 'bar',
+                data: {
+                    labels: topReps.map(r => r[0]),
+                    datasets: [{
+                        label: 'Revenue',
+                        data: topReps.map(r => r[1]),
+                        backgroundColor: '#4ECDC4'
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Update Table
+        function updateTable() {
+            const data = getFilteredData().slice(0, 50);
+            const tbody = document.querySelector('#salesTable tbody');
+            tbody.innerHTML = '';
+
+            data.forEach(item => {
+                const row = tbody.insertRow();
+                row.innerHTML = `
+                    <td>${item.date}</td>
+                    <td>${item.region}</td>
+                    <td>${item.rep}</td>
+                    <td>${item.product}</td>
+                    <td>${item.units}</td>
+                    <td>$${parseFloat(item.revenue).toLocaleString(undefined, {maximumFractionDigits: 2})}</td>
+                `;
+            });
+        }
+
+        // Refresh Data
+        function refreshData() {
+            updateMetrics();
+            updateCharts();
+            updateTable();
+        }
+
+        // Event Listeners
+        document.getElementById('regionFilter').addEventListener('change', refreshData);
+        document.getElementById('repFilter').addEventListener('change', refreshData);
+        document.getElementById('productFilter').addEventListener('change', refreshData);
+
+        // Initialize
+        generateSalesData();
+        populateRepFilter();
+        refreshData();
+    </script>
+</body>
+</html>
